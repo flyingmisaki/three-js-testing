@@ -1,48 +1,15 @@
-var scene = new THREE.Scene()
+const Cube = function(color) {
+    this.color = color
 
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000)
-camera.position.x = 10
-camera.position.y = 10
-camera.position.z = 15
-camera.rotation.y = 0.5
-camera.rotation.x = -0.5
-
-var renderer = new THREE.WebGLRenderer({antialias: true})
-renderer.setClearColor("#000000")
-renderer.setSize(window.innerWidth,window.innerHeight)
-
-document.body.appendChild(renderer.domElement)
-
-window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth,window.innerHeight)
-    camera.aspect = window.innerWidth / window.innerHeight
-
-    camera.updateProjectionMatrix()
+    this.render = function(x, y, z) {
+        let geometry = new THREE.BoxGeometry(1, 1, 1)
+        let material = new THREE.MeshLambertMaterial({color: this.color})
+        var mesh = new THREE.Mesh(geometry, material)
+        mesh.position.x = x
+        mesh.position.y = y
+        mesh.position.z = z
+        scene.add(mesh)
     }
-)
-
-
-// Helper functions //
-
-function render() {
-    requestAnimationFrame(render);
-    renderer.render(scene, camera);
-}
-
-function light(x, y, z) {
-    var light = new THREE.PointLight(0xffffff, 1, 1000)
-    light.position.set(x, y, z);
-    scene.add(light);
-}
-
-function getRandomIntInclusive(min, max) {
-    min = Math.ceil(min)
-    max = Math.floor(max)
-    return Math.floor(Math.random() * (max - min + 1) + min)
-}
-
-function getRandomColor() {
-    return new THREE.Color(Math.random(), Math.random(), Math.random())
 }
 
 const Chunk = function(){
@@ -90,22 +57,47 @@ const Chunk = function(){
     this.fill(null)
 }
 
-const Cube = function(color) {
-    this.color = color
-
-    this.render = function(x, y, z) {
-        let geometry = new THREE.BoxGeometry(1, 1, 1)
-        let material = new THREE.MeshLambertMaterial({color: this.color})
-        var mesh = new THREE.Mesh(geometry, material)
-        mesh.position.x = x
-        mesh.position.y = y
-        mesh.position.z = z
-        scene.add(mesh)
-    }
+const render = function() {
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
 }
 
-const randomChunk = function(density = 0.25) {
-    console.log("Generating chunk...")
+const getRandomIntInclusive = function(min, max) {
+    min = Math.ceil(min)
+    max = Math.floor(max)
+    return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+const getRandomColor = function() {
+    return new THREE.Color(Math.random(), Math.random(), Math.random())
+}
+
+let scene = function() {
+    scene = new THREE.Scene()
+}
+
+let camera = function() {
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000)
+    camera.position.x = 10
+    camera.position.y = 10
+    camera.position.z = 15
+    camera.rotation.y = 0.5
+    camera.rotation.x = -0.5
+    return camera
+}
+
+const light = function(x, y, z) {
+    var light = new THREE.PointLight(0xffffff, 1, 1000)
+    light.position.set(x, y, z);
+    scene.add(light);
+}
+
+const randomColorCube = function() {
+    return new Cube(getRandomColor())
+}
+
+const randomChunk = function(density = 1) {
+    console.log("Generating randomized chunk density = ", density)
     const chunk = new Chunk()
     for (x = 0; x < chunk.width; x++) {
         for (y = 0; y < chunk.height; y++) {
@@ -119,16 +111,33 @@ const randomChunk = function(density = 0.25) {
     return chunk
 }
 
-const randomColorCube = function() {
-    return new Cube(getRandomColor())
+function setupRenderer() {
+    
 }
 
 function main() {
     light(0, 10, 10)
     
-    const chunk = randomChunk()
+    const chunk = randomChunk(0.5)
     chunk.render(0, 0, 0)
     render()
 }
+
+scene()
+camera()
+
+var renderer = new THREE.WebGLRenderer({antialias: true})
+renderer.setClearColor("#000000")
+renderer.setSize(window.innerWidth,window.innerHeight)
+
+document.body.appendChild(renderer.domElement)
+
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth,window.innerHeight)
+    camera.aspect = window.innerWidth / window.innerHeight
+
+    camera.updateProjectionMatrix()
+    }
+)
 
 main()
